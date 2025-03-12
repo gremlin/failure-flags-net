@@ -1,0 +1,56 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidecar-demo
+  labels:
+    app: sidecar-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidecar-demo
+  template:
+    metadata:
+      labels:
+        app: sidecar-demo
+    spec:
+      containers:
+       - name: basicexample
+         image: basicexample:dev
+         imagePullPolicy: Never
+         env:
+          - name: FAILURE_FLAGS_ENABLED
+            value: "true"
+       - name: gremlin
+         image: gremlin/failure-flags-sidecar:latest
+         imagePullPolicy: Always
+         env:
+          - name: GREMLIN_SIDECAR_ENABLED
+            value: "true"
+          - name: GREMLIN_TEAM_ID
+            value: "" # Enter your team Id
+          - name: GREMLIN_TEAM_CERTIFICATE
+            value: "" # Enter your team certificate"
+          - name: GREMLIN_TEAM_PRIVATE_KEY
+            value: "" # Enter your team private key
+          - name: GREMLIN_DEBUG
+            value: "true"
+          ## SERVICE_NAME is the name of the application you're connecting to Gremlin
+          - name: SERVICE_NAME
+            value: "dot-net-application"
+          ## REGION is the name of the region or data center you're deploying into (for targeting)
+          - name: REGION
+            value: "demo"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-entrypoint
+spec:
+  type: NodePort
+  selector:
+    app: sidecar-demo
+  ports:
+   - port: 3000
+     targetPort: 3000
+     nodePort: 30001
