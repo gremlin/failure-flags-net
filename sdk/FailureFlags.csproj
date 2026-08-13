@@ -5,7 +5,7 @@
 		<Authors>Gremlin Inc.</Authors>
 		<Copyright>2025 Gremlin Inc.</Copyright>
 		<PackageId>Gremlin.FailureFlags</PackageId>
-		<TargetFrameworks>net5.0;net48</TargetFrameworks>
+		<TargetFrameworks>net5.0;net48;net8.0;net9.0;net10.0</TargetFrameworks>
 		<Title>Gremlin Failure Flags .NET SDK</Title>
 		<Description>Gremlin Failure Flags .NET SDK</Description>
 		<ImplicitUsings>disable</ImplicitUsings>
