@@ -5,7 +5,7 @@
 		<Authors>Gremlin Inc.</Authors>
 		<Copyright>2025 Gremlin Inc.</Copyright>
 		<PackageId>Gremlin.FailureFlags</PackageId>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFrameworks>net5.0;net48</TargetFrameworks>
 		<Title>Gremlin Failure Flags .NET SDK</Title>
 		<Description>Gremlin Failure Flags .NET SDK</Description>
 		<ImplicitUsings>disable</ImplicitUsings>
@@ -22,5 +22,24 @@
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
 	</ItemGroup>
+
+	<!-- net5.0+ gets System.Text.Json / System.Net.Http.Json from the shared framework;
+	     net48 needs them as explicit NuGet references. -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+		<PackageReference Include="System.Net.Http.Json" Version="8.0.1" />
+	</ItemGroup>
+
+	<!-- Enables `dotnet build`/`dotnet publish` for the net48 leg without a Windows SDK/Mono install. -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+			<PrivateAssets>All</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<!-- net48 defaults to C# 7.3; nullable annotations require 8.0+. -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+		<LangVersion>9.0</LangVersion>
+	</PropertyGroup>
 
 </Project>
