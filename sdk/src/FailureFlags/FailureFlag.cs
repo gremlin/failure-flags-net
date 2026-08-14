@@ -13,7 +13,7 @@ namespace FailureFlags
         /// Name of the failure flag.
         /// </summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// Labels of the failure flag for targeting.

@@ -40,13 +40,13 @@ namespace FailureFlags
         /// Name of the experiment.
         /// </summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// GUID of the experiment.
         /// </summary>
         [JsonPropertyName("guid")]
-        public string Guid { get; set; }
+        public string? Guid { get; set; }
 
         /// <summary>
         /// Rate of the experiment.
