@@ -5,9 +5,9 @@
 		<Authors>Gremlin Inc.</Authors>
 		<Copyright>2025 Gremlin Inc.</Copyright>
 		<PackageId>Gremlin.FailureFlags</PackageId>
-		<!-- 1.0.1, not 1.0.0: distinguishes this locally-built net48-capable build from the
-		     published 1.0.0 on nuget.org, which is net5.0-only. -->
-		<Version>1.0.1</Version>
+		<!-- 2.0.0: net5.0 support (the only target of the published 1.0.0) is dropped in favor of
+		     net48/net8.0/net9.0/net10.0, a breaking change for existing net5.0 consumers. -->
+		<Version>2.0.0</Version>
 		<TargetFrameworks>net48;net8.0;net9.0;net10.0</TargetFrameworks>
 		<Title>Gremlin Failure Flags .NET SDK</Title>
 		<Description>Gremlin Failure Flags .NET SDK</Description>

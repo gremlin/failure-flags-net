@@ -66,7 +66,7 @@ The logs will indicate that invoke took ~ 10s.
 
 ```
 info: FailureFlags.GremlinFailureFlags[0]
-      fetching experiments for: name: http-ingress, labels: [method, GET], [path, /api/v1/health], [failure-flags-sdk-version, failure-flags-net-v1.0.0.0]
+      fetching experiments for: name: http-ingress, labels: [method, GET], [path, /api/v1/health], [failure-flags-sdk-version, failure-flags-net-v2.0.0.0]
 info: FailureFlags.GremlinFailureFlags[0]
       1 fetched experiments
 Invoke took 10020 ms.
