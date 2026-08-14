@@ -5,7 +5,10 @@
 		<Authors>Gremlin Inc.</Authors>
 		<Copyright>2025 Gremlin Inc.</Copyright>
 		<PackageId>Gremlin.FailureFlags</PackageId>
-		<TargetFrameworks>net5.0;net48;net8.0;net9.0;net10.0</TargetFrameworks>
+		<!-- 1.0.1, not 1.0.0: distinguishes this locally-built net48-capable build from the
+		     published 1.0.0 on nuget.org, which is net5.0-only. -->
+		<Version>1.0.1</Version>
+		<TargetFrameworks>net48;net8.0;net9.0;net10.0</TargetFrameworks>
 		<Title>Gremlin Failure Flags .NET SDK</Title>
 		<Description>Gremlin Failure Flags .NET SDK</Description>
 		<ImplicitUsings>disable</ImplicitUsings>
@@ -23,7 +26,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
 	</ItemGroup>
 
-	<!-- net5.0+ gets System.Text.Json / System.Net.Http.Json from the shared framework;
+	<!-- net8.0+ gets System.Text.Json / System.Net.Http.Json from the shared framework;
 	     net48 needs them as explicit NuGet references. -->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
 		<PackageReference Include="System.Text.Json" Version="8.0.5" />
