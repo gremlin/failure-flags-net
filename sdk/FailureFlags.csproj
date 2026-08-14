@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<Company>Gremlin Inc.</Company>
@@ -7,7 +7,6 @@
 		<PackageId>Gremlin.FailureFlags</PackageId>
 		<!-- 2.0.0: net5.0 support (the only target of the published 1.0.0) is dropped in favor of
 		     net48/net8.0/net9.0/net10.0, a breaking change for existing net5.0 consumers. -->
-		<Version>2.0.0</Version>
 		<TargetFrameworks>net48;net8.0;net9.0;net10.0</TargetFrameworks>
 		<Title>Gremlin Failure Flags .NET SDK</Title>
 		<Description>Gremlin Failure Flags .NET SDK</Description>
@@ -17,13 +16,32 @@
 		<OutputType>Library</OutputType>
 		<DisableWinExeOutputInference>true</DisableWinExeOutputInference>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateProgramFile>false</GenerateProgramFile>
 	</PropertyGroup>
 
+	<!--
+		Single source of truth for the version. The SDK reports it back to Gremlin in the
+		failure-flags-sdk-version label, so the VERSION file and the assembly must not drift.
+		Source revision is excluded because it would land in the label as "2.0.0+<sha>".
+	-->
+	<PropertyGroup>
+		<_VersionFromFile>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../VERSION'))</_VersionFromFile>
+		<Version>$(_VersionFromFile.Trim())</Version>
+		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+	</PropertyGroup>
+
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.11" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.11" />
+		<!--
+			Abstractions only. A library has no business dragging a console logging implementation
+			into every consumer's dependency graph; the example app takes the full package instead.
+		-->
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>Tests</_Parameter1>
+		</AssemblyAttribute>
 	</ItemGroup>
 
 	<!-- net8.0+ gets System.Text.Json / System.Net.Http.Json from the shared framework;

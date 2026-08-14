@@ -1,67 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 
 namespace FailureFlags
 {
-
     /// <summary>
-    /// Exception processes <code>exception</code> properties in experiment effects.
+    /// Compatibility shim for the name this behavior had before 1.1.0.
     ///
-    /// Behaviors implement specific effects or symptoms of failures that an application will experience in calls to
-    /// FailureFlags.invoke(...). When processing multiple experiments, delays should be applied before other failure types
-    /// and those failure types that can be processed without changing flow should be applied first. If multiple experiments
-    /// result in changing control flow (like exceptions, shutdowns, panics, etc.) then the behavior chain may not realize
-    /// some effects.
+    /// <c>FailureFlags.Exception</c> is an ambiguous reference against <see cref="System.Exception"/>
+    /// for any consumer with <c>using FailureFlags;</c>, so every bare <c>catch (Exception e)</c> in
+    /// their code stops compiling with CS0104. Use <see cref="ExceptionBehavior"/>.
+    ///
+    /// Note that keeping this shim keeps that ambiguity alive. It exists only so that existing
+    /// source keeps compiling for one release.
     /// </summary>
-    public class Exception : IBehavior
+    [Obsolete("Renamed to ExceptionBehavior, because FailureFlags.Exception is ambiguous with System.Exception. This shim will be removed in the next release.")]
+    public class Exception : ExceptionBehavior
     {
-        public void ApplyBehavior(Experiment[] experiments)
-        {
-            var exceptions = experiments
-                .Where(experiment => experiment.Effect.ContainsKey("exception"))
-                .Select(experiment => experiment.Effect["exception"])
-                .ToList();
-
-            foreach (var e in exceptions)
-            {
-                if (e is string exceptionName)
-                {
-                    System.Exception? exception = CreateException(exceptionName);
-                    // If we failed to create the given exception, then fall back on a FailureFlagException
-                    throw exception ?? new FailureFlagException($"Exception injected by failure flag: {exceptionName}");
-                }
-
-                if (e is Dictionary<string, object> map)
-                {
-                    if (map.TryGetValue("message", out var exceptionMessage))
-                    {
-                        throw new FailureFlagException($"Exception injected by failure flag: {exceptionMessage}");
-                    }
-                }
-            }
-        }
-
-        private static System.Exception? CreateException(string exceptionName)
-        {
-            try
-            {
-                var assemblyName = new AssemblyName(exceptionName);
-                if (assemblyName.Name == null) return null;
-                var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
-                var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
-                var typeBuilder = moduleBuilder.DefineType(assemblyName.Name, TypeAttributes.Public, typeof(System.Exception));
-
-                var exceptionType = typeBuilder.CreateType();
-                if (exceptionType == null) return null;
-                return (System.Exception?)Activator.CreateInstance(exceptionType);
-            }
-            catch (System.Exception)
-            {
-                return null;
-            }
-        }
     }
 }

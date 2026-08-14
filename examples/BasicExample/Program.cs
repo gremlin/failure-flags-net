@@ -41,7 +41,7 @@ namespace BasicExample
                         Labels = new Dictionary<string, string> { },
                         Debug = true
                     };
-                    gremlinFailureFlags.Invoke(exceptionFailureFlag, new Exception());
+                    gremlinFailureFlags.Invoke(exceptionFailureFlag, new ExceptionBehavior());
                 }
 
                 {
