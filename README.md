@@ -66,7 +66,7 @@ The logs will indicate that invoke took ~ 10s.
 
 ```
 info: FailureFlags.GremlinFailureFlags[0]
-      fetching experiments for: name: http-ingress, labels: [method, GET], [path, /api/v1/health], [failure-flags-sdk-version, failure-flags-net-v1.1.0]
+      fetching experiments for: name: http-ingress, labels: [method, GET], [path, /api/v1/health], [failure-flags-sdk-version, failure-flags-net-v2.0.0]
 info: FailureFlags.GremlinFailureFlags[0]
       1 fetched experiments
 Invoke took 10020 ms.
@@ -154,6 +154,27 @@ $ dotnet test
 ```
 
 ## Release notes
+
+### 2.0.0
+
+**`net5.0` is gone.** The package now targets `net48;net8.0;net9.0;net10.0`. `net5.0` was the only
+target of the published 1.0.0 and has been out of support since May 2022, so if you are still on it
+this release is a wall, not a bump. In exchange the package is consumable from .NET Framework 4.8 for
+the first time; 1.0.0 failed `restore` outright with `NU1202` there.
+
+Dependencies moved to current versions, off the out-of-support 5.0.x line and clear of the advisories
+flagged against the old builds: `Microsoft.Extensions.Logging.Abstractions` 5.0.0 to 10.0.11, and on the `net48` leg
+`System.Text.Json` and `System.Net.Http.Json` at 10.0.11. The example app's
+`Microsoft.Extensions.Logging{,.Console}` and the test project's `WireMock.Net` (1.7.3 to 2.14.0)
+moved with them. The `Dockerfile` builds on `mcr.microsoft.com/dotnet/sdk:10.0` against an
+`aspnet:8.0` runtime.
+
+**`Experiment.Name`, `Experiment.Guid`, and `FailureFlag.Name` are now `string?`.** They are optional
+on the wire and were lying about it, emitting `CS8618` on every build. Consumers with nullable
+reference types enabled will now see warnings where they dereference these without a check, which is
+the point.
+
+If you are coming from 1.0.0 rather than 1.1.0, the behavior changes below apply to you too.
 
 ### 1.1.0
 

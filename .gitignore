@@ -1,10 +1,24 @@
+## .NET build artifacts
 [Bb]in/
 [Oo]bj/
-*.user
-*.suo
-.vs/
-.idea/
-*.nupkg
-TestResults/
 [Dd]ebug/
 [Rr]elease/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+
+## Packages
+*.nupkg
+
+## Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+## OS cruft
+.DS_Store
+Thumbs.db

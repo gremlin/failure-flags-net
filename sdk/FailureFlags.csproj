@@ -5,7 +5,9 @@
 		<Authors>Gremlin Inc.</Authors>
 		<Copyright>2025 Gremlin Inc.</Copyright>
 		<PackageId>Gremlin.FailureFlags</PackageId>
-		<TargetFramework>net5.0</TargetFramework>
+		<!-- 2.0.0: net5.0 support (the only target of the published 1.0.0) is dropped in favor of
+		     net48/net8.0/net9.0/net10.0, a breaking change for existing net5.0 consumers. -->
+		<TargetFrameworks>net48;net8.0;net9.0;net10.0</TargetFrameworks>
 		<Title>Gremlin Failure Flags .NET SDK</Title>
 		<Description>Gremlin Failure Flags .NET SDK</Description>
 		<ImplicitUsings>disable</ImplicitUsings>
@@ -20,7 +22,7 @@
 	<!--
 		Single source of truth for the version. The SDK reports it back to Gremlin in the
 		failure-flags-sdk-version label, so the VERSION file and the assembly must not drift.
-		Source revision is excluded because it would land in the label as "1.1.0+<sha>".
+		Source revision is excluded because it would land in the label as "2.0.0+<sha>".
 	-->
 	<PropertyGroup>
 		<_VersionFromFile>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../VERSION'))</_VersionFromFile>
@@ -33,7 +35,7 @@
 			Abstractions only. A library has no business dragging a console logging implementation
 			into every consumer's dependency graph; the example app takes the full package instead.
 		-->
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -41,5 +43,24 @@
 			<_Parameter1>Tests</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
+
+	<!-- net8.0+ gets System.Text.Json / System.Net.Http.Json from the shared framework;
+	     net48 needs them as explicit NuGet references. -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<PackageReference Include="System.Text.Json" Version="10.0.11" />
+		<PackageReference Include="System.Net.Http.Json" Version="10.0.11" />
+	</ItemGroup>
+
+	<!-- Enables `dotnet build`/`dotnet publish` for the net48 leg without a Windows SDK/Mono install. -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+			<PrivateAssets>All</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<!-- net48 defaults to C# 7.3; nullable annotations require 8.0+. -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+		<LangVersion>9.0</LangVersion>
+	</PropertyGroup>
 
 </Project>

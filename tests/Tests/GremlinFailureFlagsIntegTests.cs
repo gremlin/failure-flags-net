@@ -7,7 +7,6 @@ using System.Text.Json;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
-using WireMock.Settings;
 using Xunit;
 
 namespace FailureFlags
@@ -27,15 +26,23 @@ namespace FailureFlags
         public GremlinFailureFlagsIntegTests()
         {
             _loggerMock = new Mock<ILogger<GremlinFailureFlags>>();
+            // An ephemeral port, not the production 5032. xunit constructs this class once per test
+            // and Stop() does not guarantee the socket is released by the time the next test binds,
+            // so a fixed port lets a draining server from the previous test answer this one's
+            // request with the previous one's stub. That surfaces as an unrelated test failing with
+            // whatever effect its neighbour happened to configure.
+            _wireMockServer = WireMockServer.Start();
+
             // The 50ms production default is deliberately too short for WireMock startup plus a
             // cold loopback connection. A timeout here is swallowed into an empty result, so it
             // would show up as "the experiment didn't fire" rather than as a failure. The timeout
             // path has its own test below.
-            _gremlinFailureFlags = new GremlinFailureFlags(null, _loggerMock.Object, true, timeoutMs: 5000);
-            _wireMockServer = WireMockServer.Start(new WireMockServerSettings
-            {
-                Port = 5032
-            });
+            _gremlinFailureFlags = new GremlinFailureFlags(
+                null,
+                _loggerMock.Object,
+                true,
+                endpoint: $"{_wireMockServer.Urls[0]}/experiment",
+                timeoutMs: 5000);
         }
 
         public void Dispose()
@@ -380,7 +387,12 @@ namespace FailureFlags
                             new[] { new Experiment { Effect = new Dictionary<string, object> { { "latency", 500 } }, Rate = 1.0f } },
                             jsonOptions)));
 
-            var impatient = new GremlinFailureFlags(null, _loggerMock.Object, true, timeoutMs: 50);
+            var impatient = new GremlinFailureFlags(
+                null,
+                _loggerMock.Object,
+                true,
+                endpoint: $"{_wireMockServer.Urls[0]}/experiment",
+                timeoutMs: 50);
             var failureFlag = new FailureFlag
             {
                 Name = "test-1",
@@ -500,7 +512,7 @@ namespace FailureFlags
 
             // Asserting the shape, not the number, so this survives every version bump. Three parts
             // rules out AssemblyVersion, which is always four and cannot express the VERSION file's
-            // "1.1.0"; the anchored quote rules out a "+<sha>" source revision suffix.
+            // "2.0.0"; the anchored quote rules out a "+<sha>" source revision suffix.
             Assert.Matches(@"""failure-flags-sdk-version"":""failure-flags-net-v\d+\.\d+\.\d+""", body);
         }
     }

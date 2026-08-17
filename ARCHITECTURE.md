@@ -110,9 +110,18 @@ experiments that are supposed to be statistically independent perfectly correlat
 
 ## Target framework
 
-`net5.0` only, today. The .NET Framework 4.8 leg is tracked in [TODO.md](TODO.md) and is intended to
-be a project-file change and nothing more, so **new code must not use APIs newer than net5.0**. That
-is the one live constraint this rule imposes: `Random.Shared` is off limits.
+`net48;net8.0;net9.0;net10.0`. `net5.0`, the only target of the published 1.0.0, is gone; that is the
+breaking change behind the 2.0.0 major.
+
+`net48` is the floor, and it is a low one, so **new code must not use APIs outside .NET Framework
+4.8's surface** unless it is behind a `$(TargetFramework)` condition. Live consequences: `Random.Shared`
+is off limits (.NET 6+), and `System.Text.Json` / `System.Net.Http.Json` arrive as explicit
+`PackageReference`s on the `net48` leg where net8.0+ gets them from the shared framework.
+`net48` also defaults to C# 7.3, so `LangVersion` is pinned to 9.0 for that leg in both the SDK and
+the test project; the sources use target-typed `new()`.
+
+`Microsoft.NETFramework.ReferenceAssemblies` lets the `net48` leg *build* on Linux and macOS.
+Executing it still needs a Windows host, so `dotnet test` on CI covers net8.0+ only.
 
 ## Versioning
 
@@ -121,7 +130,7 @@ The `VERSION` file is the single source of truth; `sdk/FailureFlags.csproj` read
 and it reads that string from `AssemblyInformationalVersionAttribute` rather than
 `Assembly.GetName().Version`, because the latter is always four parts and cannot represent the
 three-part version in the file. `IncludeSourceRevisionInInformationalVersion` is off so the label
-does not become `1.1.0+<sha>`.
+does not become `2.0.0+<sha>`.
 
 ## Cross-SDK consistency
 
