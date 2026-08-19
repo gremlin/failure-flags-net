@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net48;net8.0;net9.0;net10.0</TargetFrameworks>
+		<!--
+			The net48 leg only executes on Windows: vstest needs the .NET Framework testhost
+			(or Mono), and the Linux CI image has neither, so `dotnet test` aborts the run.
+			Test it where it can run; elsewhere the .NET legs run and the sdk project still
+			compiles net48 unconditionally, so that target stays compile-checked everywhere.
+			Compiled, not exercised: nothing runs the net48 tests off Windows.
+		-->
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+		<TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net48;$(TargetFrameworks)</TargetFrameworks>
 
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
